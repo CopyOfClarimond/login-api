@@ -20,14 +20,16 @@ app.all("/api/*", (req, res) => {
         }
     });
 
-    req.pipe(proxyReq).on('response', (proxiedRes) => {
-        proxiedRes.pipe(res);
-    }).on('error', (err) => {
-        console.error('Response error:', err);
-        if (!res.headersSent) {
-            res.status(500).json({ error: 'An error occurred', details: err.message });
-        }
-    });
+    req.pipe(proxyReq)
+        .on('response', (proxiedRes) => {
+            proxiedRes.pipe(res);
+        })
+        .on('error', (err) => {
+            console.error('Response error:', err);
+            if (!res.headersSent) {
+                res.status(500).json({ error: 'An error occurred', details: err.message });
+            }
+        });
 });
 
 app.listen(port, () => {
