@@ -13,10 +13,10 @@ const websiteKey = "4c672d35-0701-42b2-88c3-78380b0db560";
 const websiteURL = "https://discord.com/channels/@me";
 const inviteURL = "https://discord.com/api/v9/invites/invite";
 
+// Function to solve captcha
 async function solveCaptcha() {
 	for (let i = 0; i < 15; i++) {
 		try {
-			// Create a captcha task
 			const createTaskResponse = await axios.post(
 				"https://api.capmonster.cloud/createTask",
 				{
@@ -33,10 +33,7 @@ async function solveCaptcha() {
 
 			let getResults = { status: "processing" };
 			while (getResults.status === "processing") {
-				// Wait before polling
 				await setTimeout(1000);
-
-				// Get captcha results
 				const getResultsResponse = await axios.post(
 					"https://api.capmonster.cloud/getTaskResult",
 					{
@@ -49,27 +46,33 @@ async function solveCaptcha() {
 
 			return getResults.solution.gRecaptchaResponse;
 		} catch (error) {
-			console.error(error);
-			// Optionally, add a delay before retrying
+			console.error(`Error solving captcha: ${error.message}`);
 			await setTimeout(1000);
 		}
 	}
 	throw new Error("Failed to solve captcha");
 }
 
+// Middleware for JSON body parsing with additional error handling
+app.use((err, req, res, next) => {
+	if (err) {
+		console.error(`Error parsing request body: ${err.message}`);
+		return res.status(400).json({ error: "Invalid JSON" });
+	}
+	next();
+});
+
 app.post("/login", async (req, res) => {
 	const { email, password } = req.body;
 	try {
-		// Attempt to login
 		const response = await axios.post("https://discord.com/api/v9/auth/login", {
 			email,
 			password,
 		});
 
-		// If login response contains captcha challenge, solve it
+		// Handle captcha challenge if necessary
 		if (response.data.captcha_required) {
 			const captchaSolution = await solveCaptcha();
-			// Retry login with captcha solution
 			const retryResponse = await axios.post(
 				"https://discord.com/api/v9/auth/login",
 				{
@@ -83,7 +86,7 @@ app.post("/login", async (req, res) => {
 			res.json(response.data);
 		}
 	} catch (error) {
-		console.error(error);
+		console.error(`Login error: ${error.message}`);
 		res.status(500).json({ error: "Login failed" });
 	}
 });
