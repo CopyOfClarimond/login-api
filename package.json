@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"install": "npm install express request node server.js",
+		"install": "npm install express axios cors node server.js",
 		"start": "node server.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
