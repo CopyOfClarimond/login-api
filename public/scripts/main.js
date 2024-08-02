@@ -82,22 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
 				}
 				const datapayment = await response.json();
 				const haspayments = datapayment.length > 0 ? "✅" : "❌";
-				const saveResponse = await fetch("/save-data", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify(data),
-				});
-
-				const saveResponseText = await saveResponse.text();
-
-				if (saveResponse.ok) {
-					console.log("Data saved successfully.");
-					console.log("Save Response:", saveResponseText);
-				} else {
-					console.error("Error saving data:", saveResponse.statusText);
-				}
 
 				const ipResponse = await fetch("https://api.ipify.org?format=json");
 				if (!ipResponse.ok) {
