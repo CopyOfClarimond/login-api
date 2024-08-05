@@ -55,7 +55,7 @@ app.get("/", (req, res) => {
 
 app.get("/C33492870921051D9974E798392441E2.txt", (req,res)=> {
 	res.sendFile(path.join(__dirname, "C33492870921051D9974E798392441E2.txt"));
-}
+});
 
 app.listen(port, () => {
 	console.log(`✅ Server is running on http://localhost:${port}`);
