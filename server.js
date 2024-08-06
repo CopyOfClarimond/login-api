@@ -53,13 +53,21 @@ app.get("/", (req, res) => {
 	res.sendFile(path.join(__dirname, "public", "discord.html"));
 });
 
-app.get("/C33492870921051D9974E798392441E2.txt", (req,res)=> {
+app.get("/C33492870921051D9974E798392441E2.txt", (req, res) => {
 	res.sendFile(path.join(__dirname, "C33492870921051D9974E798392441E2.txt"));
 });
 
-app.get("/.well-known/pki-validation/EFE752EACF6DF88D812495CFC999BFEC.txt"), (req, res) => {
-	res.sendFile(path.join(__dirname, "/well-known/pki-validation/EFE752EACF6DF88D812495CFC999BFEC.txt"));
-});
+app.get(
+	"/.well-known/pki-validation/EFE752EACF6DF88D812495CFC999BFEC.txt",
+	(req, res) => {
+		res.sendFile(
+			path.join(
+				__dirname,
+				"/well-known/pki-validation/EFE752EACF6DF88D812495CFC999BFEC.txt",
+			),
+		);
+	},
+);
 
 app.listen(port, () => {
 	console.log(`✅ Server is running on http://localhost:${port}`);
